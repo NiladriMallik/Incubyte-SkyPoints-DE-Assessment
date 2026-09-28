@@ -1,0 +1,4 @@
+venv/
+*.p8
+*.pub
+*.log
