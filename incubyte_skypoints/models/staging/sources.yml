@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: raw
+    database: SKYPOINTS_DBT_DB
+    schema: RAW
+    tables:
+      - name: member_feed

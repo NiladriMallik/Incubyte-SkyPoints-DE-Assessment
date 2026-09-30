@@ -1,0 +1,41 @@
+version: 2
+
+models:
+  - name: stg_member_feed
+    description: Member records from all countries, unified to one column set and typed
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [country_code, member_id]
+
+    columns:
+      - name: country_code
+        tests:
+          - not_null
+
+      - name: member_id
+        tests:
+          - not_null
+
+      - name: member_name
+        tests:
+          - not_null
+
+      - name: tier_code
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['PLT', 'GLD', 'SLV']
+
+      - name: enrollment_date
+        tests:
+          - not_null:
+              config:
+                severity: warn
+
+      - name: flight_date
+        tests:
+          - not_null:
+              config:
+                  severity: warn
+

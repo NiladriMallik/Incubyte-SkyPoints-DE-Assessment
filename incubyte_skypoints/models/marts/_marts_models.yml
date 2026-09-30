@@ -1,0 +1,71 @@
+version: 2
+
+models:
+  - name: members_aus
+    description: AUS members. No member_type column, since the AUS feed doesn't have one.
+    columns:
+      - name: member_key
+        tests: [unique, not_null]
+      - name: member_id
+        tests: [not_null]
+      - name: tier_name
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Platinum', 'Gold', 'Silver']
+      - name: dq_status
+        tests:
+          - accepted_values:
+              values: ['OK', 'REVIEW']
+      - name: age_at_enrollment
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 120
+              config:
+                severity: warn
+
+  - name: members_ind
+    description: IND members, including member_type (Individual or Corporate).
+    columns:
+      - name: member_key
+        tests: [unique, not_null]
+      - name: member_id
+        tests: [not_null]
+      - name: tier_name
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Platinum', 'Gold', 'Silver']
+      - name: member_type
+        tests:
+          - accepted_values:
+              values: ['INDIVIDUAL', 'CORPORATE']
+      - name: dq_status
+        tests:
+          - accepted_values:
+              values: ['OK', 'REVIEW']
+      - name: age_at_enrollment
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 120
+              config:
+                severity: warn
+
+  - name: members_usa
+    description: USA members. No DOB, age or member_type, since the USA feed doesn't have them.
+    columns:
+      - name: member_key
+        tests: [unique, not_null]
+      - name: member_id
+        tests: [not_null]
+      - name: tier_name
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Platinum', 'Gold', 'Silver']
+      - name: dq_status
+        tests:
+          - accepted_values:
+              values: ['OK', 'REVIEW']
