@@ -31,6 +31,19 @@ derived as(
         ) as current_age,
 
         datediff('day', enrollment_date, flight_date) as days_enrollment_to_flight,
+
+        datediff('day', flight_date,
+            coalesce(
+                try_to_date('{{ var("as_of_date") }}'), current_date()
+            )
+        ) as days_since_last_flight,
+
+        coalesce(
+            datediff('day', flight_date,
+                coalesce(try_to_date('{{ var("as_of_date") }}'), current_date())
+            ) > {{ var ('stale_days_threshold') }}, false
+        ) as stale_member,
+
         flight_date is not null as has_flown,
 
         -- data-quality flags
