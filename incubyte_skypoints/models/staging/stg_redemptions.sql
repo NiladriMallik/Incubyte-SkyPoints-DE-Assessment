@@ -1,5 +1,19 @@
+{{
+    config(
+        materialized='incremental',
+        unique_id='txn_id',
+        incremental_strategy='merge',
+        on_schema_change='append_new_columns'
+    )
+}}
+
 with source as (
     select * from {{ source('raw', 'redemption_feed') }}
+    {% if is_incremental() %}
+      where load_timestamp > (
+        select coalesce(max(load_timestamp), '1900-01-01'::timestamp_ntz) from {{ this }}
+      )
+    {% endif %}
 ),
 
 flattened as(
@@ -25,12 +39,26 @@ typed as (
         try_to_date(feed_date_raw, 'YYYYMMDD') as feed_date,
         try_to_date(txn_date_raw, 'YYYYMMDD') as txn_date
     from flattened
+),
+
+latest_in_batch as (
+    select * from typed
+    qualify row_number() over (
+        partition by txn_id
+        order by
+            feed_date desc nulls last,
+            load_timestamp desc,
+            source_file_name desc
+    ) = 1
 )
 
 select
-    *
-from typed
-qualify row_number() over (
-    partition by txn_id
-    order by feed_date desc nulls last, load_timestamp desc
-) = 1
+    l.*,
+    current_timestamp()::timestamp_ntz as _updated_at
+from latest_in_batch l
+{% if is_incremental() %}
+left join {{ this }} t
+    on t.txn_id = l.txn_id
+where t.txn_id is null
+    or coalesce(l.feed_date, '1900-01-01'::date) >= coalesce(t.feed_date, '1900-01-01'::date)
+{% endif %}
