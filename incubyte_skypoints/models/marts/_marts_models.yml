@@ -1,31 +1,71 @@
 version: 2
 
 models:
-  - name: members_aus
-    description: AUS members. No member_type column, since the AUS feed doesn't have one.
+
+  - name: members
     columns:
       - name: member_key
         tests: [unique, not_null]
-
+      
       - name: member_id
-        tests: [not_null]
+        tests: [unique, not_null]
 
       - name: tier_name
         tests:
           - not_null
           - accepted_values:
-              values: ['Platinum', 'Gold', 'Silver']
+              arguments:
+                values: ['Platinum', 'Gold', 'Silver']
+
+      - name: stale_member
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
+                quote: false
 
       - name: dq_status
         tests:
           - accepted_values:
-              values: ['OK', 'REVIEW']
+              arguments:
+                values: ['OK', 'REVIEW']
 
       - name: age_at_enrollment
         tests:
           - dbt_utils.accepted_range:
-              min_value: 0
-              max_value: 120
+              arguments:
+                min_value: 0
+                max_value: 120
+              config:
+                severity: warn
+
+
+  - name: members_aus
+    description: AUS members.
+    columns:
+      - name: member_key
+        tests: [unique, not_null]
+      - name: member_id
+        tests: [not_null]
+      - name: tier_name
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Platinum', 'Gold', 'Silver']
+      - name: dq_status
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['OK', 'REVIEW']
+
+      - name: age_at_enrollment
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 120
               config:
                 severity: warn
 
@@ -36,38 +76,39 @@ models:
               arguments:
                 values: [true, false]
                 quote: false
+
+      - name: country_code
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['AUS']
 
 
   - name: members_ind
-    description: IND members, including member_type (Individual or Corporate).
+    description: IND members.
     columns:
       - name: member_key
         tests: [unique, not_null]
-
       - name: member_id
         tests: [not_null]
-
       - name: tier_name
         tests:
           - not_null
           - accepted_values:
-              values: ['Platinum', 'Gold', 'Silver']
-
-      - name: member_type
-        tests:
-          - accepted_values:
-              values: ['INDIVIDUAL', 'CORPORATE']
-
+              arguments:
+                values: ['Platinum', 'Gold', 'Silver']
       - name: dq_status
         tests:
           - accepted_values:
-              values: ['OK', 'REVIEW']
+              arguments:
+                values: ['OK', 'REVIEW']
 
       - name: age_at_enrollment
         tests:
           - dbt_utils.accepted_range:
-              min_value: 0
-              max_value: 120
+              arguments:
+                min_value: 0
+                max_value: 120
               config:
                 severity: warn
 
@@ -79,25 +120,40 @@ models:
                 values: [true, false]
                 quote: false
 
-  - name: members_usa
-    description: USA members. No DOB, age or member_type, since the USA feed doesn't have them.
+      - name: country_code
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['IND']
+
+
+  - name: members_phl
+    description: phl members.
     columns:
       - name: member_key
         tests: [unique, not_null]
-
       - name: member_id
         tests: [not_null]
-
       - name: tier_name
         tests:
           - not_null
           - accepted_values:
-              values: ['Platinum', 'Gold', 'Silver']
-
+              arguments:
+                values: ['Platinum', 'Gold', 'Silver']
       - name: dq_status
         tests:
           - accepted_values:
-              values: ['OK', 'REVIEW']
+              arguments:
+                values: ['OK', 'REVIEW']
+
+      - name: age_at_enrollment
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 120
+              config:
+                severity: warn
 
       - name: stale_member
         tests:
@@ -106,3 +162,112 @@ models:
               arguments:
                 values: [true, false]
                 quote: false
+
+      - name: country_code
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['PHL']
+
+
+  - name: members_usa
+    description: USA members.
+    columns:
+      - name: member_key
+        tests: [unique, not_null]
+      - name: member_id
+        tests: [not_null]
+      - name: tier_name
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Platinum', 'Gold', 'Silver']
+      - name: dq_status
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['OK', 'REVIEW']
+
+      - name: age_at_enrollment
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 120
+              config:
+                severity: warn
+
+      - name: stale_member
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
+                quote: false
+
+      - name: country_code
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['USA']
+
+      
+  - name: members_can
+    description: CAN members.
+    columns:
+      - name: member_key
+        tests: [unique, not_null]
+      - name: member_id
+        tests: [not_null]
+      - name: tier_name
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Platinum', 'Gold', 'Silver']
+      - name: dq_status
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['OK', 'REVIEW']
+
+      - name: age_at_enrollment
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 120
+              config:
+                severity: warn
+
+      - name: stale_member
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
+                quote: false
+
+      - name: country_code
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['CAN']
+
+
+  - name: member_redemptions
+    description: Redemption transactions joined to the member profile. Unknown members are flagged as orphans.
+    columns:
+      - name: txn_id
+        tests: [unique, not_null]
+
+      - name: member_id
+        tests:
+          - relationships:
+              arguments:
+                to: ref('members')
+                field: member_id
+              config:
+                severity: warn
+

@@ -1,31 +1,27 @@
-version: 2
+version: 2Q
 
 models:
   - name: stg_member_feed
-    description: Member records from all countries, unified to one column set and typed
-
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [country_code, member_id]
-
     columns:
-      - name: country_code
-        tests:
-          - not_null
-
       - name: member_id
-        tests:
-          - not_null
+        tests: [not_null, unique]
 
       - name: member_name
+        tests: [not_null]
+      - name: country_code
+
         tests:
           - not_null
+          - relationships:
+              to: ref('country_map')
+              field: country_code
 
       - name: tier_code
         tests:
           - not_null
           - accepted_values:
-              values: ['PLT', 'GLD', 'SLV']
+              arguments:
+                values: ['PLT', 'GLD', 'SLV']
 
       - name: enrollment_date
         tests:
@@ -39,3 +35,28 @@ models:
               config:
                   severity: warn
 
+      - name: date_of_birth
+        tests:
+          - not_null:
+              config:
+                severity: warn
+
+  - name: stg_redemptions
+    description: One row per redemption transaction, flattened from the JSON feed.
+    columns:
+      - name: txn_id
+        tests: [not_null, unique]
+
+      - name: member_id
+        tests: [not_null]
+
+      - name: status
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['COMPLETED', 'PENDING']
+              config:
+                severity: warn
+
+      - name: miles_redeemed
+        tests: [not_null]

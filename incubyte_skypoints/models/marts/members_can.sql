@@ -1,4 +1,4 @@
 select
     *
 from {{ ref('members') }}
-where country_code = 'AUS'
+where country_code = 'CAN'

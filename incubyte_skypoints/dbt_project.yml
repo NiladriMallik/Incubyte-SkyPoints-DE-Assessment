@@ -26,6 +26,11 @@ vars:
   stale_days_threshold: 90
   as_of_date: null # null means current_date(); set a fixed date to make runs reproducibles
 
+
+seeds:
+  incubyte_skypoints:
+    +schema: SILVER
+
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 
