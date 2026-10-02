@@ -1,5 +1,19 @@
+{{
+    config(
+        materialized='incremental',
+        unique_key='member_id',
+        incremental_strategy='merge',
+        on_schema_change='append_new_columns'
+    )
+}}
+
 with base as (
     select * from {{ ref('stg_member_feed') }}
+    {% if is_incremental() %}
+      where _updated_at > (
+        select coalesce(max(_updated_at), '1900-01-01'::timestamp_ntz) from {{ this }}
+      )
+    {% endif %}
 ),
 
 derived as(
@@ -56,7 +70,11 @@ derived as(
 
         source_file_name,
         batch_id,
-        load_timestamp
+        load_timestamp,
+        previous_country_code,
+        (previous_country_code is not null) as country_changed,
+        _updated_at
+
     from base
 ),
 
